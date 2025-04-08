@@ -25,14 +25,19 @@ export function search(start, end, world) {
         `Searcing for path from (${start.x}, ${start.y}) to (${end.x}, ${end.y})`
     );
     const maxSearchDistance = 20;
+
+    // Keep track of which squares are connected
     const cameFrom = new Map();
     const cost = new Map();
+
+    // Squares to search
     const frontier = [start];
     let pathFound = false;
 
     // Set cost for starting square
     cost.set(getKey(start), 0);
 
+    let counter = 0;
     while (frontier.length > 0) {
         // Get the square with shortest distance metric
         // Dijkstra - distance to origin
@@ -40,19 +45,36 @@ export function search(start, end, world) {
 
         // Sort frontier from shortest to longest distance
         frontier.sort((v1, v2) => {
-            const d1 = start.manhattanDistanceTo(v1);
-            const d2 = start.manhattanDistanceTo(v2);
+            // Dijkstra calculations
+            // const d1 = start.manhattanDistanceTo(v1);
+            // const d2 = start.manhattanDistanceTo(v2);
 
-            return d1 - d2;
+            // return d1 - d2;
+
+            // A* Calculations
+            // True cost from the origin to a square
+            const g1 = start.manhattanDistanceTo(v1);
+            const g2 = start.manhattanDistanceTo(v2);
+
+            // Heuristic distance (aka distance to destination)
+            const h1 = v1.manhattanDistanceTo(end);
+            const h2 = v2.manhattanDistanceTo(end);
+
+            // Final Cost
+            const f1 = g1 + h1;
+            const f2 = g2 + h2;
+
+            return f1 - f2;
         });
 
         // Get the square with shortest distance
         const candidate = frontier.shift();
 
+        counter++;
         // Did we find the end goal?
         if (candidate.x === end.x && candidate.y === end.y) {
             pathFound = true;
-            console.log(`Found the end at (${candidate.x}, ${candidate.y})`);
+            console.log(`Path Found. Visited ${counter} candidates.`);
             break;
         }
 
@@ -72,7 +94,6 @@ export function search(start, end, world) {
     }
 
     if (!pathFound) {
-        console.log(pathFound);
         return null;
     }
 
@@ -122,7 +143,8 @@ function getNeighbors(coords, world, cost) {
         neighbors.push(new THREE.Vector2(coords.x, coords.y + 1));
     }
 
-    const newCost = cost.get(getKey(coords));
+    // cost to get to current square is the current square cost + 1
+    const newCost = cost.get(getKey(coords) + 1);
 
     // Exclude any squares that are already visited as well as
     // any squares that are occupied

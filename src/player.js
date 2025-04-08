@@ -7,6 +7,10 @@ export class Player extends THREE.Mesh {
      */
     raycaster = new THREE.Raycaster();
 
+    path = [];
+    pathIndex = 0;
+    pathUpdater = null;
+
     constructor(camera, world) {
         super();
 
@@ -45,12 +49,14 @@ export class Player extends THREE.Mesh {
                 Math.floor(intersections[0].point.z)
             );
 
-            const path = search(playerCoords, selectedCoords, this.world);
+            clearInterval(this.pathUpdater);
 
-            if (path === null) return;
+            this.path = search(playerCoords, selectedCoords, this.world);
+
+            if (this.path === null || this.path.length === 0) return;
 
             this.world.path.clear();
-            path.forEach((coords) => {
+            this.path.forEach((coords) => {
                 const node = new THREE.Mesh(
                     new THREE.SphereGeometry(0.1),
                     new THREE.MeshBasicMaterial()
@@ -59,7 +65,17 @@ export class Player extends THREE.Mesh {
                 node.position.set(coords.x + 0.5, 0, coords.y + 0.5);
                 this.world.path.add(node);
             });
-            console.log(path);
+
+            this.pathUpdater = setInterval(this.updatePosition.bind(this), 500);
         }
+    }
+
+    updatePosition() {
+        if (this.pathIndex === this.path.length) {
+            clearInterval(this.pathUpdater);
+        }
+        const curr = this.path[this.pathIndex++];
+
+        this.position.set(curr.x + 0.5, 0.5, curr.y + 0.5);
     }
 }
