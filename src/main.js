@@ -4,6 +4,8 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import Stats from "three/addons/libs/stats.module.js";
 import GUI from "three/examples/jsm/libs/lil-gui.module.min.js";
 
+import { Terrain } from "./terrain.js";
+
 // Stats
 const stats = new Stats();
 document.body.appendChild(stats.dom);
@@ -19,19 +21,18 @@ const camera = new THREE.PerspectiveCamera(
     0.1,
     1000
 );
-camera.position.z = 5;
+camera.position.y = 5;
+camera.position.z = 10;
+
+// Terrain
+const terrain = new Terrain(10, 10);
+scene.add(terrain);
 
 // Renderer
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setAnimationLoop(animate);
 document.body.appendChild(renderer.domElement);
-
-// Test Cube
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
 
 // Light
 const sun = new THREE.DirectionalLight();
@@ -46,9 +47,6 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
 function animate() {
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.01;
-
     // Orbit Controls
     controls.update();
 
@@ -70,10 +68,12 @@ const debugObject = {};
 
 // Cube Tweaks
 
-debugObject.cubeColor = "0x00ff00";
+debugObject.terrainColor = 0x50a000;
 
-const cubeFolder = gui.addFolder("Cube");
-cubeFolder.add(cube.position, "x", -2, 2, 0.1).name("X Position");
-cubeFolder.addColor(debugObject, "cubeColor").onChange(() => {
-    cube.material.color.set(debugObject.cubeColor);
+const terrainFolder = gui.addFolder("Terrain");
+terrainFolder.add(terrain, "width", 1, 20, 1).name("Width");
+terrainFolder.add(terrain, "height", 1, 20, 1).name("Height");
+terrainFolder.addColor(terrain.material, "color").name("Color");
+terrainFolder.onChange(() => {
+    terrain.createGeometry();
 });
