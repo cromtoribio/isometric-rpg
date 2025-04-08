@@ -4,7 +4,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import Stats from "three/addons/libs/stats.module.js";
 import GUI from "three/examples/jsm/libs/lil-gui.module.min.js";
 
-import { Terrain } from "./terrain.js";
+import { World } from "./world.js";
 
 // Stats
 const stats = new Stats();
@@ -21,12 +21,11 @@ const camera = new THREE.PerspectiveCamera(
     0.1,
     1000
 );
-camera.position.y = 5;
-camera.position.z = 10;
+camera.position.set(10, 2, 10);
 
-// Terrain
-const terrain = new Terrain(10, 10);
-scene.add(terrain);
+// World
+const world = new World(10, 10);
+scene.add(world);
 
 // Renderer
 const renderer = new THREE.WebGLRenderer();
@@ -36,6 +35,7 @@ document.body.appendChild(renderer.domElement);
 
 // Light
 const sun = new THREE.DirectionalLight();
+sun.intensity = 3;
 sun.position.set(1, 2, 3);
 scene.add(sun);
 
@@ -66,14 +66,13 @@ window.addEventListener("resize", () => {
 // GUI Controls
 const debugObject = {};
 
-// Cube Tweaks
+// Terrain Tweaks
+const worldFolder = gui.addFolder("World");
 
-debugObject.terrainColor = 0x50a000;
+worldFolder.add(world, "width", 1, 20, 1).name("Width");
+worldFolder.add(world, "height", 1, 20, 1).name("Height");
+worldFolder.add(world, "treeCount", 1, 100, 1).name("Tree Count");
+worldFolder.add(world, "rockCount", 1, 100, 1).name("Rock Count");
+worldFolder.add(world, "bushCount", 1, 100, 1).name("Bush Count");
 
-const terrainFolder = gui.addFolder("Terrain");
-terrainFolder.add(terrain, "width", 1, 20, 1).name("Width");
-terrainFolder.add(terrain, "height", 1, 20, 1).name("Height");
-terrainFolder.addColor(terrain.material, "color").name("Color");
-terrainFolder.onChange(() => {
-    terrain.createGeometry();
-});
+worldFolder.add(world, "generate").name("Generate");
