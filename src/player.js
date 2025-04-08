@@ -51,10 +51,13 @@ export class Player extends THREE.Mesh {
 
             clearInterval(this.pathUpdater);
 
+            // Find path from player's current position to selected square
             this.path = search(playerCoords, selectedCoords, this.world);
 
+            // If no path found, return early
             if (this.path === null || this.path.length === 0) return;
 
+            // DEBUG: show path as breadcrumbs
             this.world.path.clear();
             this.path.forEach((coords) => {
                 const node = new THREE.Mesh(
@@ -66,6 +69,8 @@ export class Player extends THREE.Mesh {
                 this.world.path.add(node);
             });
 
+            // trigger interval function to update player's position
+            this.pathIndex = 0;
             this.pathUpdater = setInterval(this.updatePosition.bind(this), 500);
         }
     }
@@ -73,9 +78,10 @@ export class Player extends THREE.Mesh {
     updatePosition() {
         if (this.pathIndex === this.path.length) {
             clearInterval(this.pathUpdater);
+            return;
         }
-        const curr = this.path[this.pathIndex++];
 
+        const curr = this.path[this.pathIndex++];
         this.position.set(curr.x + 0.5, 0.5, curr.y + 0.5);
     }
 }
