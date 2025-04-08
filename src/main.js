@@ -5,6 +5,7 @@ import Stats from "three/addons/libs/stats.module.js";
 import GUI from "three/examples/jsm/libs/lil-gui.module.min.js";
 
 import { World } from "./world.js";
+import { Player } from "./player.js";
 
 // Stats
 const stats = new Stats();
@@ -21,16 +22,21 @@ const camera = new THREE.PerspectiveCamera(
     0.1,
     1000
 );
-camera.position.set(10, 2, 10);
+camera.position.set(0, 2, 0);
 
 // World
 const world = new World(10, 10);
 scene.add(world);
 
+// Player
+const player = new Player(camera, world.terrain);
+scene.add(player);
+
 // Renderer
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setAnimationLoop(animate);
+renderer.setPixelRatio(devicePixelRatio);
 document.body.appendChild(renderer.domElement);
 
 // Light
@@ -44,6 +50,7 @@ scene.add(ambient);
 
 // Orbit Controls
 const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(5, 0, 5);
 controls.enableDamping = true;
 
 function animate() {

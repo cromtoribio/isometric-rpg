@@ -1,6 +1,9 @@
 import * as THREE from "three";
 
-export class World extends THREE.Mesh {
+const loader = new THREE.TextureLoader();
+const gridTexture = loader.load("./textures/grid.png");
+
+export class World extends THREE.Group {
     #objectMap = new Map();
 
     constructor(width, height) {
@@ -67,6 +70,11 @@ export class World extends THREE.Mesh {
     }
 
     createTerrain() {
+        gridTexture.repeat = new THREE.Vector2(this.width, this.height);
+        gridTexture.wrapS = THREE.RepeatWrapping;
+        gridTexture.wrapT = THREE.RepeatWrapping;
+        gridTexture.colorSpace = THREE.SRGBColorSpace;
+
         const terrainGeometry = new THREE.PlaneGeometry(
             this.width,
             this.height,
@@ -74,11 +82,11 @@ export class World extends THREE.Mesh {
             this.height
         );
         const terrainMaterial = new THREE.MeshStandardMaterial({
-            color: 0x50a000,
+            map: gridTexture,
         });
 
         this.terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
-
+        this.terrain.name = "Terrain";
         this.terrain.rotation.x = -Math.PI / 2;
         this.terrain.position.set(this.width / 2, 0, this.height / 2);
         this.add(this.terrain);
