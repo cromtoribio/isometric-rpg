@@ -25,21 +25,44 @@ export class MovementAction extends Action {
     }
 
     async perform() {
-        // If player selects a new square, while already moving along a path clear the interval
-        clearInterval(this.pathUpdater);
+        return new Promise((resolve) => {
+            function updateSourcePosition() {
+                // if we reach the end of the path, clear the interval
+                // and clear the breadcrumbs, then resolve this action to
+                // unblock the combat manager
+                if (this.pathIndex === this.path.length) {
+                    clearInterval(this.pathUpdater);
+                    this.world.path.clear();
+                    resolve();
 
-        // Add breakcrumbs to the path
-        this.path.forEach((coords) => {
-            const node = breadcrumb.clone();
-            node.position.set(coords.x + 0.5, 0, coords.z + 0.5);
-            this.world.path.add(node);
+                    // otherwise, move source object to next path node
+                } else {
+                    // Move the player to the next square in the path
+                    // and increment the pathIndex
+                    const curr = this.path[this.pathIndex++];
+                    this.source.moveTo(curr);
+                }
+            }
+
+            // If player selects a new square, while already moving along a path clear the interval
+            clearInterval(this.pathUpdater);
+
+            // Add breakcrumbs to the path
+            this.path.forEach((coords) => {
+                const node = breadcrumb.clone();
+                node.position.set(coords.x + 0.5, 0, coords.z + 0.5);
+                this.world.path.add(node);
+            });
+
+            // trigger interval function to update player's position
+            this.pathIndex = 0;
+            // Call updatePosition function every 250ms
+            // to move the player along the path
+            this.pathUpdater = setInterval(
+                updateSourcePosition.bind(this),
+                300
+            );
         });
-
-        // trigger interval function to update player's position
-        this.pathIndex = 0;
-        // Call updatePosition function every 250ms
-        // to move the player along the path
-        this.pathUpdater = setInterval(this.updatePosition.bind(this), 250);
     }
 
     async canPerform() {
@@ -61,20 +84,5 @@ export class MovementAction extends Action {
         console.log(this.path);
         // If no path found, return early
         return this.path !== null && this.path.length > 0;
-    }
-
-    updatePosition() {
-        // if pathIndex is equal to the length of the path, clear the interval
-        // and return — this indicates that the player has reached the end of the path
-        if (this.pathIndex === this.path.length) {
-            clearInterval(this.pathUpdater);
-            this.world.path.clear();
-            return;
-        }
-
-        // Move the player to the next square in the path
-        // and increment the pathIndex
-        const curr = this.path[this.pathIndex++];
-        this.source.moveTo(curr);
     }
 }

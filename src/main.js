@@ -6,6 +6,7 @@ import GUI from "three/examples/jsm/libs/lil-gui.module.min.js";
 
 import { World } from "./world.js";
 import { HumanPlayer } from "./players/HumanPlayer.js";
+import { CombatManager } from "./CombatManager.js";
 
 // Stats
 const stats = new Stats();
@@ -31,6 +32,10 @@ scene.add(world);
 // Player
 const player = new HumanPlayer(new THREE.Vector3(1, 0, 5), camera, world);
 scene.add(player);
+
+//Combat Manager
+const combatManager = new CombatManager();
+combatManager.addPlayer(player);
 
 // Renderer
 const renderer = new THREE.WebGLRenderer();
@@ -84,7 +89,4 @@ worldFolder.add(world, "bushCount", 1, 100, 1).name("Bush Count");
 
 worldFolder.add(world, "generate").name("Generate");
 
-const action = await player.requestAction();
-if (await action.canPerform()) {
-    await action.perform();
-}
+combatManager.takeTurns();
