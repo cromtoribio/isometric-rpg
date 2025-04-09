@@ -1,4 +1,8 @@
 import * as THREE from "three";
+import { Bush } from "./objects/Bush.js";
+import { Rock } from "./objects/Rock.js";
+import { Tree } from "./objects/Tree.js";
+import { getKey } from "./utils.js";
 
 const loader = new THREE.TextureLoader();
 const gridTexture = loader.load("./textures/grid.png");
@@ -6,13 +10,6 @@ const gridTexture = loader.load("./textures/grid.png");
 export class World extends THREE.Group {
     // Private property
     #objectMap = new Map();
-
-    /**
-     * Returns the key for the object map given a set of coordinates
-     * @param {THREE.Vector2} coords
-     * @returns
-     */
-    getKey = (coords) => `${coords.x}-${coords.y}`;
 
     constructor(width, height) {
         super();
@@ -53,29 +50,9 @@ export class World extends THREE.Group {
             this.remove(this.terrain);
         }
 
-        if (this.trees) {
-            this.trees.children.forEach((tree) => {
-                tree.geometry?.dispose();
-                tree.material?.dispose();
-            });
-            this.trees.clear();
-        }
-
-        if (this.rocks) {
-            this.rocks.children.forEach((rock) => {
-                rock.geometry?.dispose();
-                rock.material?.dispose();
-            });
-            this.rocks.clear();
-        }
-
-        if (this.bushes) {
-            this.bushes.children.forEach((bush) => {
-                bush.geometry?.dispose();
-                bush.material?.dispose();
-            });
-            this.bushes.clear();
-        }
+        this.trees.clear();
+        this.rocks.clear();
+        this.bushes.clear();
 
         this.#objectMap.clear();
     }
@@ -104,100 +81,60 @@ export class World extends THREE.Group {
     }
 
     createTrees() {
-        const treeRadius = 0.2;
-        const treeHeight = 1;
-
-        const treeGeometry = new THREE.ConeGeometry(treeRadius, treeHeight, 8);
-        const treeMaterial = new THREE.MeshStandardMaterial({
-            color: 0x305010,
-            flatShading: true,
-        });
-
         for (let i = 0; i < this.treeCount; i++) {
-            const coords = new THREE.Vector2(
+            const coords = new THREE.Vector3(
                 Math.floor(this.width * Math.random()),
+                0,
                 Math.floor(this.height * Math.random())
             );
-
-            // Don't place objects on top of each other
-            if (this.#objectMap.has(this.getKey(coords))) continue;
-            const treeMesh = new THREE.Mesh(treeGeometry, treeMaterial);
-            treeMesh.name = `Tree ${coords.x}, ${coords.y}`;
-
-            treeMesh.position.set(
-                coords.x + 0.5,
-                treeHeight / 2,
-                coords.y + 0.5
-            );
-            this.trees.add(treeMesh);
-            this.#objectMap.set(this.getKey(coords), treeMesh);
+            const tree = new Tree(coords);
+            this.addObject(tree, coords, this.trees);
         }
     }
 
     createRocks() {
-        const minRockRadius = 0.1;
-        const maxRockRadius = 0.3;
-        const minRockHeight = 0.5;
-        const maxRockHeight = 0.8;
-
-        const rockMaterial = new THREE.MeshStandardMaterial({
-            color: 0xb0b0b0,
-            flatShading: true,
-        });
-
         for (let i = 0; i < this.rockCount; i++) {
-            const radius =
-                minRockRadius + Math.random() * (maxRockRadius - minRockRadius);
-            const height =
-                minRockHeight + Math.random() * (maxRockHeight - minRockHeight);
-
-            const coords = new THREE.Vector2(
+            const coords = new THREE.Vector3(
                 Math.floor(this.width * Math.random()),
+                0,
                 Math.floor(this.height * Math.random())
             );
 
-            // Don't place objects on top of each other
-            if (this.#objectMap.has(this.getKey(coords))) continue;
-            const rockGeometry = new THREE.SphereGeometry(radius, 6, 5);
-            const rockMesh = new THREE.Mesh(rockGeometry, rockMaterial);
-            rockMesh.name = `Rock ${coords.x}, ${coords.y}`;
-
-            rockMesh.position.set(coords.x + 0.5, 0, coords.y + 0.5);
-            rockMesh.scale.y = height;
-            this.rocks.add(rockMesh);
-            this.#objectMap.set(this.getKey(coords), rockMesh);
+            const rockMesh = new Rock(coords);
+            this.addObject(rockMesh, coords, this.rocks);
         }
     }
 
     createBushes() {
-        const minBushRadius = 0.1;
-        const maxBushRadius = 0.3;
-
-        const bushMaterial = new THREE.MeshStandardMaterial({
-            color: 0x80a040,
-            flatShading: true,
-        });
-
         for (let i = 0; i < this.bushCount; i++) {
-            const radius =
-                minBushRadius + Math.random() * (maxBushRadius - minBushRadius);
-
-            const coords = new THREE.Vector2(
+            const coords = new THREE.Vector3(
                 Math.floor(this.width * Math.random()),
+                0,
                 Math.floor(this.height * Math.random())
             );
 
-            // Don't place objects on top of each other
-            if (this.#objectMap.has(this.getKey(coords))) continue;
-
-            const bushGeometry = new THREE.SphereGeometry(radius, 8, 8);
-            const bushMesh = new THREE.Mesh(bushGeometry, bushMaterial);
-            bushMesh.name = `Bush ${coords.x}, ${coords.y}`;
-
-            bushMesh.position.set(coords.x + 0.5, radius, coords.y + 0.5);
-            this.bushes.add(bushMesh);
-            this.#objectMap.set(this.getKey(coords), bushMesh);
+            const bush = new Bush(coords);
+            this.addObject(bush, coords, this.bushes);
         }
+    }
+
+    /**
+     * Adds an object at the specified coordinates unless
+     * an object already exists at those coordinates
+     * @param {GameObject} object
+     * @param {THREE.Vector3} coords
+     * @param {THREE.Group} group The group to add the object to
+     * @returns
+     */
+    addObject(object, coords, group) {
+        // Don't place objects on top of each other
+        if (this.#objectMap.has(getKey(coords))) {
+            return false;
+        }
+
+        group.add(object);
+        this.#objectMap.set(getKey(coords), object);
+        return true;
     }
 
     /**
@@ -206,7 +143,7 @@ export class World extends THREE.Group {
      * @returns {object | null}
      */
     getObject(coords) {
-        return this.#objectMap.get(this.getKey(coords)) ?? null;
+        return this.#objectMap.get(getKey(coords)) ?? null;
     }
 }
 

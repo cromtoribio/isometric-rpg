@@ -1,7 +1,12 @@
 import * as THREE from "three";
 import { search } from "./pathfinding.js";
+import { GameObject } from "./objects/GameObject.js";
+import { World } from "./world.js";
 
-export class Player extends THREE.Mesh {
+const geometry = new THREE.CapsuleGeometry(0.25, 0.5);
+const material = new THREE.MeshStandardMaterial({ color: 0x4040c0 });
+
+export class Player extends GameObject {
     /**
      * @type {THREE.Raycaster}
      */
@@ -11,16 +16,27 @@ export class Player extends THREE.Mesh {
     pathIndex = 0;
     pathUpdater = null;
 
-    constructor(camera, world) {
-        super();
-
-        this.geometry = new THREE.CapsuleGeometry(0.25, 0.5);
-        this.material = new THREE.MeshStandardMaterial({ color: 0x4040c0 });
-        this.position.set(1.5, 0.5, 5.5);
-
+    /**
+     * Instantiates a player object.
+     * @param {THREE.Vector3} coords
+     * @param {THREE.Camera} camera
+     * @param {World} world
+     */
+    constructor(coords, camera, world) {
+        super(coords, geometry, material);
+        this.moveTo(coords);
         this.camera = camera;
         this.world = world;
         window.addEventListener("mousedown", this.onMouseDown.bind(this));
+    }
+
+    /**
+     * Moves the player to the given coordinates.
+     * @param {THREE.Vector3} coords
+     */
+    moveTo(coords) {
+        this.coords = coords;
+        this.position.set(coords.x + 0.5, this.coords.y + 0.5, coords.z + 0.5);
     }
 
     /**
@@ -39,13 +55,15 @@ export class Player extends THREE.Mesh {
         );
 
         if (intersections.length > 0) {
-            const playerCoords = new THREE.Vector2(
+            const playerCoords = new THREE.Vector3(
                 Math.floor(this.position.x),
+                Math.floor(this.position.y),
                 Math.floor(this.position.z)
             );
 
-            const selectedCoords = new THREE.Vector2(
+            const selectedCoords = new THREE.Vector3(
                 Math.floor(intersections[0].point.x),
+                0,
                 Math.floor(intersections[0].point.z)
             );
 
@@ -65,7 +83,7 @@ export class Player extends THREE.Mesh {
                     new THREE.MeshBasicMaterial()
                 );
 
-                node.position.set(coords.x + 0.5, 0, coords.y + 0.5);
+                node.position.set(coords.x + 0.5, 0, coords.z + 0.5);
                 this.world.path.add(node);
             });
 
@@ -82,6 +100,6 @@ export class Player extends THREE.Mesh {
         }
 
         const curr = this.path[this.pathIndex++];
-        this.position.set(curr.x + 0.5, 0.5, curr.y + 0.5);
+        this.moveTo(curr);
     }
 }
