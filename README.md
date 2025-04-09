@@ -48,3 +48,26 @@ Constructor:
 
 **Bush.js** uses `minBushRadius` & `maxBushRadius` to calculate a random scale for the bush
 **Rock.js** uses `minRadius`, `maxRadius`, `minHeight`, & `maxHeight` to calculate a random scale for the rocks
+
+### Player Classes
+
+**player.js**
+extends GameObject
+
+Properties:
+
+-   `raycaster` (THREE.Raycaster class): used to capture mouse events within 3D world
+-   `path` (Array): holds the array of THREE.Vector3 coordinates provided by the `search()` function in **pathfinder.js**
+-   `pathIndex`: Used to iterate through the path array and move the character
+-   `pathUpdater`: Used to hold the `setInterval` timer
+
+The rest is commented within the file!
+
+**pathfinding.js**
+Houses all logic for pathfinding
+
+**_Functions_**
+search()
+
+-   Takes startCoords (THREE.Vector3), endCoords (THREE.Vector3), & a World Object
+-   If a path is found within

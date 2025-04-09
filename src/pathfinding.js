@@ -18,9 +18,12 @@ export function search(start, end, world) {
     console.log(
         `Searcing for path from (${start.x}, ${start.z}) to (${end.x}, ${end.z})`
     );
+
+    // Set the maximum search distance
     const maxSearchDistance = 20;
 
     // Keep track of which squares are connected
+    // and the cost to get to each square
     const cameFrom = new Map();
     const cost = new Map();
 
@@ -32,6 +35,8 @@ export function search(start, end, world) {
     cost.set(getKey(start), 0);
 
     let counter = 0;
+
+    // Enter the path if search frontier is not empty
     while (frontier.length > 0) {
         // Get the square with shortest distance metric
         // Dijkstra - distance to origin
@@ -64,7 +69,10 @@ export function search(start, end, world) {
         // Get the square with shortest distance
         const candidate = frontier.shift();
 
+        // Counter used to show the difference between
+        // A* and Dijkstra Algorithms
         counter++;
+
         // Did we find the end goal?
         if (candidate.equals(end)) {
             pathFound = true;
@@ -73,6 +81,7 @@ export function search(start, end, world) {
         }
 
         // If distance is farther than max distance
+        // then skip this square
         if (candidate.manhattanDistanceTo(start) > maxSearchDistance) {
             continue;
         }
@@ -87,21 +96,34 @@ export function search(start, end, world) {
         });
     }
 
+    // If while loop ends and path is not found, return null
+    // This means that the search frontier is empty and
+    // the end square is unreachable the max search distance
+    // was reached and player can't access the square
     if (!pathFound) {
         return null;
     }
 
-    // Reconstruct path
+    // Reconstruct path starting from the end point
     let curr = end;
+
+    // Create an array to hold the path
     const path = [curr];
 
+    // While the key value of the current square is not equal to the key value of the start square
+    // keep going back through the cameFrom map until we reach the start square
+    // This will give us the path from the start square to the end square
     while (getKey(curr) !== getKey(start)) {
         const prev = cameFrom.get(getKey(curr));
         path.push(prev);
         curr = prev;
     }
 
+    // Reverse the path so that it goes from start to end
     path.reverse();
+
+    // Remove the first square from the path (the start square)
+    // since the plaer is already there
     path.shift();
 
     return path;
@@ -117,22 +139,23 @@ export function search(start, end, world) {
 function getNeighbors(coords, world, cost) {
     let neighbors = [];
 
-    // Left
+    // Assuming the world is a finite grid
+    // Get Left Neighbor
     if (coords.x > 0) {
         neighbors.push(new THREE.Vector3(coords.x - 1, 0, coords.z));
     }
 
-    // Right
+    // Get Right Neighbor
     if (coords.x < world.width - 1) {
         neighbors.push(new THREE.Vector3(coords.x + 1, 0, coords.z));
     }
 
-    // Top
+    // Get Top Neighbor
     if (coords.z > 0) {
         neighbors.push(new THREE.Vector3(coords.x, 0, coords.z - 1));
     }
 
-    // Bottom
+    // Get Bottom Neighbor
     if (coords.z < world.height - 1) {
         neighbors.push(new THREE.Vector3(coords.x, 0, coords.z + 1));
     }
