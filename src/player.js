@@ -71,7 +71,7 @@ export class Player extends THREE.Mesh {
 
             // trigger interval function to update player's position
             this.pathIndex = 0;
-            this.pathUpdater = setInterval(this.updatePosition.bind(this), 500);
+            this.pathUpdater = setInterval(this.updatePosition.bind(this), 250);
         }
     }
 
