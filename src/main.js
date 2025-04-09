@@ -8,6 +8,8 @@ import { World } from "./world.js";
 import { HumanPlayer } from "./players/HumanPlayer.js";
 import { CombatManager } from "./CombatManager.js";
 
+import { Action, MovementAction } from "./actions";
+
 // Stats
 const stats = new Stats();
 document.body.appendChild(stats.dom);

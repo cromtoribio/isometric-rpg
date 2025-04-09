@@ -8,7 +8,7 @@ const breadcrumb = new THREE.Mesh(
 );
 
 export class MovementAction extends Action {
-    name = "MovementAction";
+    name = "Move";
 
     path = [];
     pathIndex = 0;
