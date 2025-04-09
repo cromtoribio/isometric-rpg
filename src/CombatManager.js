@@ -22,12 +22,15 @@ export class CombatManager {
     async takeTurns() {
         while (true) {
             for (const player of this.players) {
+                console.log("Player turn", player.name);
                 let actionPerformed = false;
                 do {
                     const action = await player.requestAction();
 
                     if (await action.canPerform()) {
+                        // Wait for the player to finish performing their action
                         await action.perform();
+                        actionPerformed = true;
                     } else {
                         alert("Action cannot be performed");
                     }

@@ -30,12 +30,16 @@ const world = new World(10, 10);
 scene.add(world);
 
 // Player
-const player = new HumanPlayer(new THREE.Vector3(1, 0, 5), camera, world);
-scene.add(player);
+const player1 = new HumanPlayer(new THREE.Vector3(1, 0, 5), camera, world);
+const player2 = new HumanPlayer(new THREE.Vector3(8, 0, 3), camera, world);
+scene.add(player1, player2);
+player1.name = "Player 1";
+player2.name = "Player 2";
 
 //Combat Manager
 const combatManager = new CombatManager();
-combatManager.addPlayer(player);
+combatManager.addPlayer(player1);
+combatManager.addPlayer(player2);
 
 // Renderer
 const renderer = new THREE.WebGLRenderer();
