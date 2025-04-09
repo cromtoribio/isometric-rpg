@@ -8,22 +8,24 @@ const bushMaterial = new THREE.MeshStandardMaterial({
 });
 
 export class Bush extends GameObject {
-    minBushRadius = 0.1;
-    maxBushRadius = 0.3;
-
     /**
      * @param {THREE.Vector3} coords
      *
      */
     constructor(coords) {
-        super(coords, bushGeometry, bushMaterial);
-        this.name = `Bush (${coords.x}, ${coords.z})`;
-
+        const minBushRadius = 0.1;
+        const maxBushRadius = 0.3;
         const radius =
-            this.minBushRadius +
-            Math.random() * (this.maxBushRadius - this.minBushRadius);
+            minBushRadius + Math.random() * (maxBushRadius - minBushRadius);
 
-        this.scale.set(radius, radius, radius);
-        this.position.set(coords.x + 0.5, coords.y + radius, coords.z + 0.5);
+        const bushMesh = new THREE.Mesh(bushGeometry, bushMaterial);
+
+        bushMesh.scale.set(radius, radius, radius);
+        bushMesh.position.set(0.5, radius, 0.5);
+
+        super(coords, bushMesh);
+
+        this.name = `Bush (${coords.x}, ${coords.z})`;
+        this.moveTo(coords);
     }
 }

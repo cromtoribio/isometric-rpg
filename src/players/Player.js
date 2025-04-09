@@ -5,7 +5,6 @@ import { MovementAction } from "../actions/MovementAction.js";
 import { WaitAction } from "../actions/WaitAction.js";
 
 const geometry = new THREE.CapsuleGeometry(0.25, 0.5);
-const material = new THREE.MeshStandardMaterial({ color: 0x4040c0 });
 
 /**
  * Base player class that human and AI players will extend
@@ -21,7 +20,10 @@ export class Player extends GameObject {
      * @param {World} world
      */
     constructor(coords, camera, world) {
-        super(coords, geometry, material);
+        const material = new THREE.MeshStandardMaterial({ color: 0x4040c0 });
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.set(0.5, 0.5, 0.5);
+        super(coords, mesh);
         this.moveTo(coords);
         this.camera = camera;
         this.world = world;

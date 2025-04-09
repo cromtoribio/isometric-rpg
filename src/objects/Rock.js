@@ -9,30 +9,27 @@ const rockMaterial = new THREE.MeshStandardMaterial({
 const rockGeometry = new THREE.SphereGeometry(1, 6, 5);
 
 export class Rock extends GameObject {
-    minRadius = 0.2;
-    maxRadius = 0.4;
-    minHeight = 0.1;
-    maxHeight = 0.3;
-
     /**
      * @param {THREE.Vector3} coords
      *
      */
     constructor(coords) {
-        super(coords, rockGeometry, rockMaterial);
+        const minRadius = 0.2;
+        const maxRadius = 0.4;
+        const minHeight = 0.1;
+        const maxHeight = 0.3;
+
+        const rockMesh = new THREE.Mesh(rockGeometry, rockMaterial);
+
+        const radius = minRadius + Math.random() * (maxRadius - minRadius);
+        const height = minHeight + Math.random() * (maxHeight - minHeight);
+
+        rockMesh.scale.set(radius, height, radius);
+        rockMesh.position.set(0.5, height / 2, 0.5);
+
+        super(coords, rockMesh);
 
         this.name = `Rock (${coords.x}, ${coords.z})`;
-
-        const radius =
-            this.minRadius + Math.random() * (this.maxRadius - this.minRadius);
-        const height =
-            this.minHeight + Math.random() * (this.maxHeight - this.minHeight);
-
-        this.scale.set(radius, height, radius);
-        this.position.set(
-            coords.x + 0.5,
-            coords.y + height / 4,
-            coords.z + 0.5
-        );
+        this.moveTo(coords);
     }
 }

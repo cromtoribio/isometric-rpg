@@ -1,3 +1,4 @@
+import * as THREE from "three";
 import { Player } from "./players/Player.js";
 
 export class CombatManager {
@@ -24,6 +25,8 @@ export class CombatManager {
             for (const player of this.players) {
                 console.log("Player turn", player.name);
                 let actionPerformed = false;
+
+                player.mesh.material.color.set(new THREE.Color(0x00ff00));
                 do {
                     const action = await player.requestAction();
 
@@ -35,6 +38,8 @@ export class CombatManager {
                         alert("Action cannot be performed");
                     }
                 } while (!actionPerformed);
+
+                player.mesh.material.color.set(new THREE.Color(0x4040c0));
             }
         }
     }

@@ -13,10 +13,12 @@ export class Tree extends GameObject {
      *
      */
     constructor(coords) {
-        super(coords, treeGeometry, treeMaterial);
+        const treeMesh = new THREE.Mesh(treeGeometry, treeMaterial);
+        treeMesh.position.set(0.5, 0.5, 0.5);
+        super(coords, treeMesh);
 
         this.name = `Tree (${coords.x}, ${coords.z})`;
 
-        this.position.set(coords.x + 0.5, coords.y + 0.5, coords.z + 0.5);
+        this.position.copy(coords);
     }
 }
