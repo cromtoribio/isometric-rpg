@@ -5,7 +5,7 @@ import Stats from "three/addons/libs/stats.module.js";
 import GUI from "three/examples/jsm/libs/lil-gui.module.min.js";
 
 import { World } from "./world.js";
-import { Player } from "./player.js";
+import { HumanPlayer } from "./players/HumanPlayer.js";
 
 // Stats
 const stats = new Stats();
@@ -29,7 +29,7 @@ const world = new World(10, 10);
 scene.add(world);
 
 // Player
-const player = new Player(new THREE.Vector3(1, 0, 5), camera, world);
+const player = new HumanPlayer(new THREE.Vector3(1, 0, 5), camera, world);
 scene.add(player);
 
 // Renderer
@@ -83,3 +83,8 @@ worldFolder.add(world, "rockCount", 1, 100, 1).name("Rock Count");
 worldFolder.add(world, "bushCount", 1, 100, 1).name("Bush Count");
 
 worldFolder.add(world, "generate").name("Generate");
+
+const action = await player.requestAction();
+if (await action.canPerform()) {
+    await action.perform();
+}
