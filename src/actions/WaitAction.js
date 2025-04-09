@@ -1,4 +1,4 @@
-import { GameObject } from "../objects/GameObject";
+import { Action } from "./Action";
 
 /**
  * This is an action where th player skips their turn.

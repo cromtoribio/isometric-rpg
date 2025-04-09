@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { GameObject } from "../objects/GameObject.js";
 import { World } from "../world.js";
 import { MovementAction } from "../actions/MovementAction.js";
+import { WaitAction } from "../actions/WaitAction.js";
 
 const geometry = new THREE.CapsuleGeometry(0.25, 0.5);
 const material = new THREE.MeshStandardMaterial({ color: 0x4040c0 });
@@ -24,6 +25,16 @@ export class Player extends GameObject {
         this.moveTo(coords);
         this.camera = camera;
         this.world = world;
+    }
+
+    /**
+     * @returns {Action[]} actions
+     */
+    getActions() {
+        return [
+            new MovementAction(this, this.world),
+            new WaitAction(this, this.world),
+        ];
     }
 
     /**
